@@ -1,0 +1,22 @@
+#!/bin/bash
+
+sudo -v
+
+# handle args
+for arg in $*; do
+	case arg
+		"-ubuntu")
+			./ubuntu-server/first-time-setup
+			;;
+		"+pi-hole")
+			./configurations/pi-hole
+			;;
+		"+nas")
+			./configurations/nas
+			;;
+	esac
+done
+
+main()
+
+# vim: syntax=sh

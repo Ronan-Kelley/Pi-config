@@ -1,0 +1,13 @@
+#!/bin/bash
+
+release="$(lsb_release -d)"
+
+[[ "$release" == *Arch\ Linux* ]] && \
+	sudo pacman -S samba
+
+[[ "$release" == *Ubuntu* ]] || [[ "$release" == *Debian* ]] && \
+	sudo apt install samba samba-common -y
+
+echo "remember to modify /etc/samba/smb.conf to fit your needs. Additionally, set a password with 'sudo smbpassword -a <username>', and enable samba with 'sudo systemctl enable --now smbd"
+
+# vim: syntax=sh
