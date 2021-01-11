@@ -8,8 +8,10 @@ for arg in $*; do
 		"-ubuntu")
 			./ubuntu-server/first-time-setup
 			;;
-		"+pi-hole")
-			./configurations/pi-hole
+		+*)
+			_arg="$(echo $arg | sed 's/+//')"
+			[ -f "./modules/$_arg" ] || echo "invalid module \"$_arg\", skipping" && continue
+			./modules/$_arg
 			;;
 		"+nas")
 			./configurations/nas
