@@ -25,7 +25,7 @@ sudo rm -rf /etc/update-motd.d/*motd-news
 
 # attempt to install all programs listed under install_list
 echo "attempting to install all programs listed under Pi-config/ubuntu-server/install_list"
-for entry in $(cat install_list); do
+for entry in $(cat "$(find . -name 'install_list')"); do
 	install_list="$install_list $entry"
 done
 
