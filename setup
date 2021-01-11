@@ -4,7 +4,7 @@ sudo -v
 
 # handle args
 for arg in $*; do
-	case arg
+	case $arg in
 		"-ubuntu")
 			./ubuntu-server/first-time-setup
 			;;
@@ -16,7 +16,5 @@ for arg in $*; do
 			;;
 	esac
 done
-
-main()
 
 # vim: syntax=sh
