@@ -1,0 +1,16 @@
+#!/bin/bash
+
+_clock=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq)
+_temp=$(cat /sys/class/thermal/thermal_zone0/temp)
+
+if [ ${#_clock} -gt 6 ]; then
+	_clock="$(( $_clock / 1000000 ))ghz"
+else
+	_clock="$(( $_clock / 1000 ))mhz"
+fi
+
+_temp="$(( $_temp / 1000 ))C"
+
+echo -e "clock speed: ${_clock}\ntemperature: ${_temp}"
+
+#vim: syntax=sh

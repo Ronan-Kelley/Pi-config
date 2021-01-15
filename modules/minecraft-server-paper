@@ -1,0 +1,56 @@
+#!/bin/bash
+
+release="$(lsb_release -d)"
+
+[[ "$release" == *Arch\ Linux* ]] && \
+	echo "this module does not yet work on Arch Linux" && exit 0
+
+[[ "$release" == *Ubuntu* ]] || [[ "$release" == *Debian* ]] && \
+	sudo apt install git build-essential openjdk-11-jre-headless -y
+
+# use a seperate user for the server for security reasons
+sudo useradd -r -m -U -d /opt/minecraft -s /bin/bash minecraft
+
+# as the new user, set up the rcon client and minecraft server
+sudo -i -u minecraft << EOF
+mkdir ~/backups ~/tools ~/server
+git clone https://github.com/Tiiffi/mcrcon.git ~/tools/mcrcon
+
+cd ~/tools/mcrcon
+make
+
+cd ~/server
+echo 'eula=true' > eula.txt
+EOF
+
+_project="paper"
+_version="$(curl https://papermc.io/api/v2/projects/paper | sed 's/,/\n/g' | tail -n 1 | cut -d '"' -f2)"
+_build="$(curl https://papermc.io/api/v2/projects/paper/versions/$_version/ | sed 's/,/\n/g' | tail -n 1 | sed -r 's/([[:digit:]]+).*/\1/')"
+
+sudo curl "https://papermc.io/api/v2/projects/$_project/versions/$_version/builds/$_build/downloads/${_project}-${_version}-${_build}.jar" -o /opt/minecraft/server/paper_latest.jar
+
+# create a systemd service for the server
+sudo mkdir -p /etc/systemd/system/
+sudo touch /etc/systemd/system/minecraft.service
+
+echo '[Unit]
+Description=Minecraft Server
+After=network.target
+
+[Service]
+User=minecraft
+Nice=-3
+KillMode=none
+SuccessExitStatus=0 1
+ProtectHome=true
+ProtectSystem=full
+PrivateDevices=true
+NoNewPrivileges=true
+WorkingDirectory=/opt/minecraft/server
+ExecStart=/usr/bin/java -Xmx3G -Xms1G -jar paper_latest.jar nogui
+ExecStop=/opt/minecraft/tools/mcrcon/mcrcon -H 127.0.0.1 -P 25575 -p password stop
+
+[Install]
+WantedBy=multi-user.target' | sudo tee /etc/systemd/system/minecraft.service
+
+echo "you must set the rcon password and enable rcon manually in /opt/minecraft/server/server.properties"
