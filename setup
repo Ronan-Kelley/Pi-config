@@ -10,11 +10,9 @@ for arg in $*; do
 			;;
 		+*)
 			_arg="$(echo $arg | sed 's/+//')"
-			[ -f "./modules/$_arg" ] || echo "invalid module \"$_arg\", skipping" && continue
+			[ ! -f "./modules/$_arg" ] && echo "invalid module \"$_arg\", skipping" && continue
+			echo "running module '$_arg'"
 			./modules/$_arg
-			;;
-		"+nas")
-			./configurations/nas
 			;;
 	esac
 done
